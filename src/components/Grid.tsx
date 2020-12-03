@@ -38,14 +38,6 @@ export const Grid: React.FC<GridProps> = () => {
     setStart(false)
   }, [cols, emptyGrid, probability, rows])
 
-  const newEmpty = () => {
-    setStack([[0, 0]])
-    setCells(emptyGrid)
-    setFrame(0)
-    setDone(false)
-    setStart(false)
-  }
-
   const repeat = () => {
     let resetCells = cells.map(row => row.map(c => (c > 0 ? 1000 : c)))
     resetCells[0][0] = 0
