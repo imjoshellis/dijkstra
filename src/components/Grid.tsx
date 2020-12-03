@@ -74,6 +74,35 @@ export const Grid: React.FC<GridProps> = () => {
       [1, 0]
     ]
 
+    const updateDFS = () => {
+      let nextCells = cells
+      let nextStack = stack
+      const [row, col] = nextStack.pop()!
+      for (const [i, j] of dirs) {
+        const r = row + i
+        const c = col + j
+        if (
+          r < 0 ||
+          r >= nextCells.length ||
+          c < 0 ||
+          c >= nextCells[0].length
+        ) {
+          continue
+        }
+        if (nextCells[r][c] === 4000) {
+          setFrame(frame + 1)
+          setDone(true)
+        }
+        if (nextCells[r][c] === 1000) {
+          nextCells[r][c] = nextCells[row][col] + 1
+          nextStack.push([r, c])
+        }
+      }
+      setStack(nextStack)
+      setCells(nextCells)
+      setFrame(frame + 1)
+    }
+
     const update = () => {
       let nextCells = cells
       let nextStack = [] as number[][]
@@ -105,7 +134,7 @@ export const Grid: React.FC<GridProps> = () => {
     }
 
     if (start && stack.length > 0 && !done) {
-      const interval = setInterval(() => update(), 1000 / speed)
+      const interval = setInterval(() => updateDFS(), 1000 / speed)
       return () => {
         clearInterval(interval)
       }
