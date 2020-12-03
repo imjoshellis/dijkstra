@@ -5,7 +5,7 @@ import Grid from './components/Grid'
 function App () {
   return (
     <div className='App'>
-      <h1>Dijkstra's Algorithm Visualizer</h1>
+      {/* <h1>Dijkstra's Algorithm Visualizer</h1> */}
       <Grid />
       <div className='byline'>
         Built in React by{' '}
