@@ -2,27 +2,39 @@ import React, { useCallback, useEffect, useReducer, useState } from 'react'
 
 interface GridProps {}
 
+const randInt = (min: number, max: number) => {
+  min = Math.ceil(min)
+  max = Math.floor(max)
+  return Math.floor(Math.random() * (max - min + 1)) + min
+}
+
 export const Grid: React.FC<GridProps> = () => {
   const [rows, setRows] = useState(20)
   const [cols, setCols] = useState(40)
   const [probability, setProbability] = useState(35)
+  const [target, setTarget] = useState([
+    randInt(1, rows - 1),
+    randInt(1, cols - 1)
+  ])
 
   let emptyGrid = useCallback(() => {
     let g = Array(rows)
       .fill(Array(cols).fill(0))
       .map(r => r.map(() => 1000))
     g[0][0] = 0
-    g[rows - 1][cols - 1] = 4000
+    const [tr, tc] = target
+    g[tr][tc] = 4000
     return g as number[][]
   }, [cols, rows])
 
-  const [cells, setCells] = useState(emptyGrid)
+  const [cells, setCells] = useState([] as number[][])
   const [stack, setStack] = useState([] as number[][])
   const [frame, setFrame] = useState(0)
   const [speed, setSpeed] = useState(50)
   const [done, setDone] = useState(false)
   const [start, setStart] = useState(false)
   const [, forceUpdate] = useReducer(x => x + 1, 0)
+  const [cur, setCur] = useState(0)
 
   const newRandom = useCallback(() => {
     setStack([[0, 0]])
@@ -31,7 +43,9 @@ export const Grid: React.FC<GridProps> = () => {
     )
 
     randomGrid[0][0] = 0
-    randomGrid[rows - 1][cols - 1] = 4000
+    const [tr, tc] = [randInt(1, rows - 1), randInt(1, cols - 1)]
+    randomGrid[tr][tc] = 4000
+    setTarget([tr, tc])
     setCells(randomGrid)
     setFrame(0)
     setDone(false)
@@ -41,7 +55,8 @@ export const Grid: React.FC<GridProps> = () => {
   const repeat = () => {
     let resetCells = cells.map(row => row.map(c => (c > 0 ? 1000 : c)))
     resetCells[0][0] = 0
-    resetCells[rows - 1][cols - 1] = 4000
+    const [tr, tc] = target
+    resetCells[tr][tc] = 4000
     setCells(resetCells)
     setStack([[0, 0]])
     setFrame(0)
@@ -53,7 +68,8 @@ export const Grid: React.FC<GridProps> = () => {
     let toggledCells = cells.map(row => row.map(c => (c > 0 ? 1000 : c)))
     toggledCells[i][j] = toggledCells[i][j] >= 0 ? -1 : 1000
     toggledCells[0][0] = 0
-    toggledCells[rows - 1][cols - 1] = 4000
+    const [tr, tc] = target
+    toggledCells[tr][tc] = 4000
     setCells(toggledCells)
     setStart(false)
     setDone(false)
@@ -74,10 +90,11 @@ export const Grid: React.FC<GridProps> = () => {
       [1, 0]
     ]
 
-    const updateDFS = () => {
+    const dfs = () => {
       let nextCells = cells
       let nextStack = stack
       const [row, col] = nextStack.pop()!
+      setCur(nextCells[row][col])
       for (const [i, j] of dirs) {
         const r = row + i
         const c = col + j
@@ -103,10 +120,11 @@ export const Grid: React.FC<GridProps> = () => {
       setFrame(frame + 1)
     }
 
-    const update = () => {
+    const bfs = () => {
       let nextCells = cells
       let nextStack = [] as number[][]
       for (const [row, col] of stack) {
+        setCur(nextCells[row][col])
         for (const [i, j] of dirs) {
           const r = row + i
           const c = col + j
@@ -134,7 +152,7 @@ export const Grid: React.FC<GridProps> = () => {
     }
 
     if (start && stack.length > 0 && !done) {
-      const interval = setInterval(() => updateDFS(), 1000 / speed)
+      const interval = setInterval(() => dfs(), 1000 / speed)
       return () => {
         clearInterval(interval)
       }
@@ -215,7 +233,7 @@ export const Grid: React.FC<GridProps> = () => {
         {cells.map((row, i) =>
           row.flatMap((cell, j) => {
             const key = i + '-' + j
-            if (key === '0-0' || key === `${rows - 1}-${cols - 1}`)
+            if (cell === 0 || cell === 4000)
               return (
                 <div key={key} className='cell gate'>
                   ↘︎
@@ -229,7 +247,7 @@ export const Grid: React.FC<GridProps> = () => {
                   cell >= 0
                     ? cell === 1000
                       ? 'cell'
-                      : cell === frame
+                      : cell === cur
                       ? 'cell current'
                       : 'cell visited'
                     : 'cell wall'
