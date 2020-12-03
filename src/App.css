@@ -1,38 +1,107 @@
+/* https://lospec.com/palette-list/steam-lords */
+:root {
+  --visited: #775c4f;
+  --green-300: #213b25;
+  --green-200: #3a604a;
+  --green-100: #4f7754;
+  --sand-200: #77744f;
+  --sand-100: #a19f7c;
+  --mud-300: #3b2137;
+  --mud-200: #603b3a;
+  --mud-100: #775c4f;
+  --purpgray-800: #170e19;
+  --purpgray-700: #2f213b;
+  --purpgray-600: #433a60;
+  --purpgray-500: #4f5277;
+  --purpgray-400: #65738c;
+  --purpgray-300: #7c94a1;
+  --purpgray-200: #a0b9ba;
+  --purpgray-100: #c0d1cc;
+}
+
 .App {
   text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
+  background-color: var(--purpgray-700);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  font-size: calc(4px + 2vmin);
+  color: var(--purpgray-200);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.byline {
+  padding-top: 16px;
+}
+
+a {
+  color: var(--purpgray-100);
+  transition: opacity 150ms ease-in;
+}
+
+a:hover {
+  opacity: 0.75;
+  transition: opacity 250ms ease-out;
+}
+
+h1 {
   font-size: calc(10px + 2vmin);
-  color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.grid {
+  background-color: var(--purpgray-800);
+  display: grid;
+  font-size: calc(2vmin);
+  gap: 2px;
+  padding: 8px;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.controls {
+  font-size: 2vmin;
+}
+
+.control-row {
+  padding-bottom: 16px;
+}
+
+.cell {
+  font-size: calc(1.5vmin);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  background-color: var(--purpgray-500);
+  cursor: pointer;
+  border-radius: 2px;
+  transition: background-color 150ms ease-in;
+}
+
+.cell:hover {
+  background-color: var(--mud-200);
+  transition: background-color 150ms ease-out;
+}
+
+.visited {
+  background-color: var(--visited);
+  transition: background-color 250ms ease-out;
+}
+
+.current {
+  background-color: var(--green-100);
+  transition: background-color 50ms ease-out;
+}
+
+.wall {
+  background-color: var(--purpgray-700);
+  color: var(--mud-300);
+}
+
+.gate {
+  color: var(--purpgray-500);
+  font-weight: 600;
+  background-color: var(--purpgray-200);
+  font-size: calc(3vmin);
 }
