@@ -138,7 +138,17 @@ export const Grid: React.FC<GridProps> = () => {
       <div className='controls'>
         <div className='control-row'>
           <div className='control-item'>Step: {frame}</div>
-          {!start ? (
+          {done ? (
+            <button
+              className='control-item'
+              onClick={() => {
+                repeat()
+                setStart(true)
+              }}
+            >
+              restart
+            </button>
+          ) : !start ? (
             <button className='control-item' onClick={() => setStart(true)}>
               play
             </button>
