@@ -5,6 +5,10 @@ export const dfs: AlgoFunction = ({ cells, stack }) => {
   let nextStack = [...stack]
   const [row, col, val] = nextStack.pop()!
   const current = [row, col]
+  if (nextCells[row][col] === 4000)
+    return { current, nextStack, nextCells, done: true }
+  if (nextCells[row][col] !== 1000 && nextCells[row][col] !== 0)
+    return { current, nextStack, nextCells, done: false }
   nextCells[row][col] = val
   for (const [i, j] of dirs) {
     const r = row + i
@@ -12,11 +16,7 @@ export const dfs: AlgoFunction = ({ cells, stack }) => {
     if (r < 0 || r >= nextCells.length || c < 0 || c >= nextCells[0].length) {
       continue
     }
-    if (nextCells[r][c] === 4000) {
-      return { current, nextStack, nextCells, done: true }
-    }
-    if (nextCells[r][c] === 1000) {
-      nextCells[r][c] = 1001
+    if (nextCells[r][c] >= 1000) {
       nextStack.push([r, c, nextCells[row][col] + 1])
     }
   }
