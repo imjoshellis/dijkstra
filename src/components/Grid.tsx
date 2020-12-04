@@ -82,12 +82,27 @@ export const Grid: React.FC<GridProps> = () => {
     setStart(false)
   }
 
-  const toggle = (i: number, j: number) => {
+  const preventDefault = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    e.preventDefault()
+  }
+
+  const toggle = (i: number, j: number) => (
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>
+  ) => {
+    preventDefault(e)
     let toggledCells = cells.map(row => row.map(c => (c > 0 ? 1000 : c)))
-    toggledCells[i][j] = toggledCells[i][j] >= 0 ? -1 : 1000
-    toggledCells[0][0] = 0
     const [tr, tc] = target
-    toggledCells[tr][tc] = 4000
+    console.log(e.button, e.buttons)
+    if (e.buttons === 2) {
+      toggledCells[i][j] = 4000
+      toggledCells[0][0] = 0
+      toggledCells[tr][tc] = 1000
+      setTarget([i, j])
+    } else if (e.buttons === 1) {
+      toggledCells[i][j] = toggledCells[i][j] >= 0 ? -1 : 1000
+      toggledCells[0][0] = 0
+      toggledCells[tr][tc] = 4000
+    }
     setCells(toggledCells)
     setStart(false)
     setDone(false)
@@ -112,7 +127,7 @@ export const Grid: React.FC<GridProps> = () => {
         setCells(nextCells)
         setDone(done)
         setFrame(frame + 1)
-      }, 1000 / speed)
+      }, 500 / speed)
       return () => {
         clearInterval(interval)
       }
@@ -122,51 +137,72 @@ export const Grid: React.FC<GridProps> = () => {
     <>
       <div className='controls'>
         <div className='control-row'>
-          Step: {frame}
-          Speed{' '}
-          <input
-            type='range'
-            min='1'
-            max='100'
-            name='speed'
-            value={speed}
-            onChange={e => {
-              setSpeed(parseInt(e.target.value))
-            }}
-          />
+          <div className='control-item'>Step: {frame}</div>
           {!start ? (
-            <button onClick={() => setStart(true)}>play</button>
+            <button className='control-item' onClick={() => setStart(true)}>
+              play
+            </button>
           ) : (
-            <button onClick={() => setStart(false)}>pause</button>
+            <button className='control-item' onClick={() => setStart(false)}>
+              pause
+            </button>
           )}
           {algo === 'bfs' ? (
-            <button onClick={() => setAlgo('dfs')}>
+            <button className='control-item' onClick={() => setAlgo('dfs')}>
               using: bfs (click to toggle)
             </button>
           ) : (
-            <button onClick={() => setAlgo('bfs')}>
+            <button className='control-item' onClick={() => setAlgo('bfs')}>
               using: dfs (click to toggle)
             </button>
           )}
+          <button className='control-item' onClick={() => newRandom(target)}>
+            new
+          </button>
+          <button className='control-item' onClick={repeat}>
+            reset
+          </button>
         </div>
         <div className='control-row'>
-          Chance of Wall:{' '}
-          <input
-            type='range'
-            min='0'
-            max='100'
-            name='probability'
-            value={probability}
-            onChange={e => {
-              setProbability(parseInt(e.target.value))
-            }}
-          />
-          <button onClick={() => newRandom(target)}>new</button>
-          <button onClick={repeat}>reset</button>
+          <div className='control-item'>
+            <label>Speed</label>
+            <input
+              type='range'
+              min='1'
+              max='100'
+              name='speed'
+              value={speed}
+              onChange={e => {
+                setSpeed(parseInt(e.target.value))
+              }}
+            />
+          </div>
+          <div className='control-item'>
+            <label>Chance of Wall</label>
+            <input
+              type='range'
+              min='0'
+              max='100'
+              name='probability'
+              value={probability}
+              onChange={e => {
+                setProbability(parseInt(e.target.value))
+              }}
+            />
+          </div>
+        </div>
+        <div className='control-row'>
+          <div className='control-item'>
+            <p>
+              <strong>Left-click</strong> to toggle a cell between wall and
+              empty. <strong>Right-click</strong> to move the target cell.
+            </p>
+          </div>
         </div>
       </div>
       <div
         className='grid'
+        onContextMenu={preventDefault}
         style={{
           gridTemplateColumns: `repeat(${cols}, ${80 /
             Math.max(cols, rows)}vw)`,
@@ -185,7 +221,8 @@ export const Grid: React.FC<GridProps> = () => {
             return (
               <div
                 key={key}
-                onClick={() => toggle(i, j)}
+                onMouseDown={toggle(i, j)}
+                tabIndex={-1}
                 className={
                   cell >= 0
                     ? cell === 1000

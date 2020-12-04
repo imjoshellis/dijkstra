@@ -16,6 +16,10 @@
   --cell-gate-text: #5ac54f;
 }
 
+p {
+  margin: 0;
+}
+
 .App {
   text-align: center;
   background-color: var(--app-bg);
@@ -61,7 +65,17 @@ h1 {
 }
 
 .control-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   padding-bottom: 16px;
+}
+
+.control-item {
+  margin-left: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .cell {
@@ -103,5 +117,6 @@ h1 {
   color: var(--cell-gate-text);
   font-weight: 600;
   background-color: var(--cell-gate);
-  font-size: calc(3vmin);
+  font-size: calc(2.5vmin);
+  padding-bottom: 0.5vmin;
 }
