@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useReducer, useState } from 'react'
+import { AlgoMap, AlgoTypes, bfs, dfs } from '../algos'
 
 interface GridProps {}
 
@@ -6,6 +7,11 @@ const randInt = (min: number, max: number) => {
   min = Math.ceil(min)
   max = Math.floor(max)
   return Math.floor(Math.random() * (max - min + 1)) + min
+}
+
+const algos: AlgoMap = {
+  dfs: dfs,
+  bfs: bfs
 }
 
 export const Grid: React.FC<GridProps> = () => {
@@ -29,12 +35,13 @@ export const Grid: React.FC<GridProps> = () => {
 
   const [cells, setCells] = useState([] as number[][])
   const [stack, setStack] = useState([] as number[][])
+  const [algo, setAlgo] = useState<AlgoTypes>('bfs')
   const [frame, setFrame] = useState(0)
   const [speed, setSpeed] = useState(50)
   const [done, setDone] = useState(false)
   const [start, setStart] = useState(false)
   const [, forceUpdate] = useReducer(x => x + 1, 0)
-  const [cur, setCur] = useState(0)
+  const [cur, setCur] = useState([0, 0])
 
   const newRandom = useCallback(() => {
     setStack([[0, 0]])
@@ -83,76 +90,18 @@ export const Grid: React.FC<GridProps> = () => {
   }, [rows, cols, newRandom])
 
   useEffect(() => {
-    const dirs = [
-      [0, 1],
-      [0, -1],
-      [-1, 0],
-      [1, 0]
-    ]
-
-    const dfs = () => {
-      let nextCells = cells
-      let nextStack = stack
-      const [row, col] = nextStack.pop()!
-      setCur(nextCells[row][col])
-      for (const [i, j] of dirs) {
-        const r = row + i
-        const c = col + j
-        if (
-          r < 0 ||
-          r >= nextCells.length ||
-          c < 0 ||
-          c >= nextCells[0].length
-        ) {
-          continue
-        }
-        if (nextCells[r][c] === 4000) {
-          setFrame(frame + 1)
-          setDone(true)
-        }
-        if (nextCells[r][c] === 1000) {
-          nextCells[r][c] = nextCells[row][col] + 1
-          nextStack.push([r, c])
-        }
-      }
-      setStack(nextStack)
-      setCells(nextCells)
-      setFrame(frame + 1)
-    }
-
-    const bfs = () => {
-      let nextCells = cells
-      let nextStack = [] as number[][]
-      for (const [row, col] of stack) {
-        setCur(nextCells[row][col])
-        for (const [i, j] of dirs) {
-          const r = row + i
-          const c = col + j
-          if (
-            r < 0 ||
-            r >= nextCells.length ||
-            c < 0 ||
-            c >= nextCells[0].length
-          ) {
-            continue
-          }
-          if (nextCells[r][c] === 4000) {
-            setFrame(frame + 1)
-            setDone(true)
-          }
-          if (nextCells[r][c] === 1000) {
-            nextCells[r][c] = nextCells[row][col] + 1
-            nextStack.push([r, c])
-          }
-        }
-      }
-      setStack(nextStack)
-      setCells(nextCells)
-      setFrame(frame + 1)
-    }
-
     if (start && stack.length > 0 && !done) {
-      const interval = setInterval(() => dfs(), 1000 / speed)
+      const interval = setInterval(() => {
+        const { current, nextStack, nextCells, done } = algos[algo]({
+          cells,
+          stack
+        })
+        setCur(current)
+        setStack(nextStack)
+        setCells(nextCells)
+        setDone(done)
+        setFrame(frame + 1)
+      }, 1000 / speed)
       return () => {
         clearInterval(interval)
       }
@@ -178,6 +127,15 @@ export const Grid: React.FC<GridProps> = () => {
             <button onClick={() => setStart(true)}>play</button>
           ) : (
             <button onClick={() => setStart(false)}>pause</button>
+          )}
+          {algo === 'bfs' ? (
+            <button onClick={() => setAlgo('dfs')}>
+              using: bfs (click to toggle)
+            </button>
+          ) : (
+            <button onClick={() => setAlgo('bfs')}>
+              using: dfs (click to toggle)
+            </button>
           )}
         </div>
         <div className='control-row'>
@@ -247,7 +205,7 @@ export const Grid: React.FC<GridProps> = () => {
                   cell >= 0
                     ? cell === 1000
                       ? 'cell'
-                      : cell === cur
+                      : i === cur[0] && j === cur[1]
                       ? 'cell current'
                       : 'cell visited'
                     : 'cell wall'
