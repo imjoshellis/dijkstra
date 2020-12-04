@@ -1,34 +1,35 @@
-/* https://lospec.com/palette-list/steam-lords */
+/* https: ; //lospec.com/palette-list/endesga-64 */
 :root {
-  --visited: #775c4f;
-  --green-300: #213b25;
-  --green-200: #3a604a;
-  --green-100: #4f7754;
-  --sand-200: #77744f;
-  --sand-100: #a19f7c;
-  --mud-300: #3b2137;
-  --mud-200: #603b3a;
-  --mud-100: #775c4f;
-  --purpgray-800: #170e19;
-  --purpgray-700: #2f213b;
-  --purpgray-600: #433a60;
-  --purpgray-500: #4f5277;
-  --purpgray-400: #65738c;
-  --purpgray-300: #7c94a1;
-  --purpgray-200: #a0b9ba;
-  --purpgray-100: #c0d1cc;
+  --app-bg: #131313;
+  --app-text: #b4b4b4;
+  --link-inactive: #ffffff;
+  --link-hover: #c7cfdd;
+  --grid-bg: #1a1932;
+  --cell-text: #657392;
+  --cell-hover: #ffc825;
+  --cell-wall: #657392;
+  --cell-visited: #424c6e;
+  --cell-visited-text: #c7cfdd;
+  --cell-current: #ff5000;
+  --cell-current-text: #8e251d;
+  --cell-gate: #1e6f50;
+  --cell-gate-text: #5ac54f;
+}
+
+p {
+  margin: 0;
 }
 
 .App {
   text-align: center;
-  background-color: var(--purpgray-700);
+  background-color: var(--app-bg);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   font-size: calc(4px + 2vmin);
-  color: var(--purpgray-200);
+  color: var(--app-text);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
     Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
@@ -38,13 +39,13 @@
 }
 
 a {
-  color: var(--purpgray-100);
-  transition: opacity 150ms ease-in;
+  color: var(--link-inactive);
+  transition: color 150ms ease-in;
 }
 
 a:hover {
-  opacity: 0.75;
-  transition: opacity 250ms ease-out;
+  color: var(--link-hover);
+  transition: color 250ms ease-out;
 }
 
 h1 {
@@ -52,7 +53,7 @@ h1 {
 }
 
 .grid {
-  background-color: var(--purpgray-800);
+  background-color: var(--grid-bg);
   display: grid;
   font-size: calc(2vmin);
   gap: 2px;
@@ -64,44 +65,58 @@ h1 {
 }
 
 .control-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   padding-bottom: 16px;
 }
 
+.control-item {
+  margin-left: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .cell {
+  color: var(--cell-text);
+  background-color: var(--grid-bg);
   font-size: calc(1.5vmin);
   display: flex;
   justify-content: center;
   align-items: center;
   overflow: hidden;
-  background-color: var(--purpgray-500);
   cursor: pointer;
   border-radius: 2px;
   transition: background-color 150ms ease-in;
 }
 
 .cell:hover {
-  background-color: var(--mud-200);
+  background-color: var(--cell-hover);
   transition: background-color 150ms ease-out;
 }
 
 .visited {
-  background-color: var(--visited);
-  transition: background-color 250ms ease-out;
+  color: var(--cell-visited-text);
+  background-color: var(--cell-visited);
+  transition: background-color 500ms ease;
 }
 
 .current {
-  background-color: var(--green-100);
+  color: var(--cell-current-text);
+  background-color: var(--cell-current);
   transition: background-color 50ms ease-out;
 }
 
 .wall {
-  background-color: var(--purpgray-700);
+  background-color: var(--cell-wall);
   color: var(--mud-300);
 }
 
 .gate {
-  color: var(--purpgray-500);
+  color: var(--cell-gate-text);
   font-weight: 600;
-  background-color: var(--purpgray-200);
-  font-size: calc(3vmin);
+  background-color: var(--cell-gate);
+  font-size: calc(2.5vmin);
+  padding-bottom: 0.5vmin;
 }

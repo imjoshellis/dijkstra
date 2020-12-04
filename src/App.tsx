@@ -9,7 +9,7 @@ function App () {
       <Grid />
       <div className='byline'>
         Built in React by{' '}
-        <a href='https://github.com/imjoshellis/dijkstra'>Josh Ellis</a>
+        <a href='https://github.com/imjoshellis/visual-algos'>Josh Ellis</a>
       </div>
     </div>
   )
