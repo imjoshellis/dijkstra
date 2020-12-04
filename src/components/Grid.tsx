@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useReducer, useState } from 'react'
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useReducer,
+  useState
+} from 'react'
 import { AlgoMap, AlgoTypes, bfs, dfs } from '../algos'
 
 interface GridProps {}
@@ -15,23 +21,25 @@ const algos: AlgoMap = {
 }
 
 export const Grid: React.FC<GridProps> = () => {
-  const [rows, setRows] = useState(20)
-  const [cols, setCols] = useState(40)
+  const rows = 20,
+    cols = 40
   const [probability, setProbability] = useState(35)
-  const [target, setTarget] = useState([
-    randInt(1, rows - 1),
-    randInt(1, cols - 1)
-  ])
+  const initialTarget = useMemo(
+    () => [randInt(5, rows - 1), randInt(5, cols - 1)],
+    []
+  )
 
-  let emptyGrid = useCallback(() => {
+  const [target, setTarget] = useState(initialTarget)
+
+  let emptyGrid = useCallback((t: number[]) => {
     let g = Array(rows)
       .fill(Array(cols).fill(0))
       .map(r => r.map(() => 1000))
     g[0][0] = 0
-    const [tr, tc] = target
+    const [tr, tc] = t
     g[tr][tc] = 4000
     return g as number[][]
-  }, [cols, rows])
+  }, [])
 
   const [cells, setCells] = useState([] as number[][])
   const [stack, setStack] = useState([] as number[][])
@@ -43,21 +51,24 @@ export const Grid: React.FC<GridProps> = () => {
   const [, forceUpdate] = useReducer(x => x + 1, 0)
   const [cur, setCur] = useState([0, 0])
 
-  const newRandom = useCallback(() => {
-    setStack([[0, 0]])
-    let randomGrid: number[][] = emptyGrid().map(r =>
-      r.map(() => (Math.random() * 100 > probability ? 1000 : -1))
-    )
+  const newRandom = useCallback(
+    (t: number[]) => {
+      setStack([[0, 0]])
+      let randomGrid: number[][] = emptyGrid(t).map(r =>
+        r.map(() => (Math.random() * 100 > probability ? 1000 : -1))
+      )
 
-    randomGrid[0][0] = 0
-    const [tr, tc] = [randInt(1, rows - 1), randInt(1, cols - 1)]
-    randomGrid[tr][tc] = 4000
-    setTarget([tr, tc])
-    setCells(randomGrid)
-    setFrame(0)
-    setDone(false)
-    setStart(false)
-  }, [cols, emptyGrid, probability, rows])
+      randomGrid[0][0] = 0
+      const [tr, tc] = [randInt(5, rows - 1), randInt(5, cols - 1)]
+      setTarget([tr, tc])
+      randomGrid[tr][tc] = 4000
+      setCells(randomGrid)
+      setFrame(0)
+      setDone(false)
+      setStart(false)
+    },
+    [emptyGrid, probability]
+  )
 
   const repeat = () => {
     let resetCells = cells.map(row => row.map(c => (c > 0 ? 1000 : c)))
@@ -86,8 +97,8 @@ export const Grid: React.FC<GridProps> = () => {
   }
 
   useEffect(() => {
-    newRandom()
-  }, [rows, cols, newRandom])
+    newRandom(initialTarget)
+  }, [rows, cols, newRandom, initialTarget])
 
   useEffect(() => {
     if (start && stack.length > 0 && !done) {
@@ -106,7 +117,7 @@ export const Grid: React.FC<GridProps> = () => {
         clearInterval(interval)
       }
     }
-  }, [cells, done, frame, speed, stack, start])
+  }, [algo, cells, done, frame, speed, stack, start])
   return (
     <>
       <div className='controls'>
@@ -150,33 +161,7 @@ export const Grid: React.FC<GridProps> = () => {
               setProbability(parseInt(e.target.value))
             }}
           />
-          Rows:{' '}
-          <input
-            type='number'
-            min='5'
-            max='100'
-            name='rows'
-            value={rows}
-            onChange={e => {
-              if (parseInt(e.target.value) >= 5) {
-                setRows(parseInt(e.target.value))
-              }
-            }}
-          />
-          Columns:{' '}
-          <input
-            type='number'
-            min='5'
-            max='100'
-            name='cols'
-            value={cols}
-            onChange={e => {
-              if (parseInt(e.target.value) >= 5) {
-                setCols(parseInt(e.target.value))
-              }
-            }}
-          />
-          <button onClick={newRandom}>new</button>
+          <button onClick={() => newRandom(target)}>new</button>
           <button onClick={repeat}>reset</button>
         </div>
       </div>
