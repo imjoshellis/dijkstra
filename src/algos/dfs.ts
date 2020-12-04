@@ -3,8 +3,9 @@ import { AlgoFunction, dirs } from '.'
 export const dfs: AlgoFunction = ({ cells, stack }) => {
   let nextCells = cells
   let nextStack = [...stack]
-  const [row, col] = nextStack.pop()!
+  const [row, col, val] = nextStack.pop()!
   const current = [row, col]
+  nextCells[row][col] = val
   for (const [i, j] of dirs) {
     const r = row + i
     const c = col + j
@@ -15,8 +16,8 @@ export const dfs: AlgoFunction = ({ cells, stack }) => {
       return { current, nextStack, nextCells, done: true }
     }
     if (nextCells[r][c] === 1000) {
-      nextCells[r][c] = nextCells[row][col] + 1
-      nextStack.push([r, c])
+      nextCells[r][c] = 1001
+      nextStack.push([r, c, nextCells[row][col] + 1])
     }
   }
   return { current, nextStack, nextCells, done: false }

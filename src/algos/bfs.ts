@@ -2,9 +2,10 @@ import { AlgoFunction, dirs } from '.'
 
 export const bfs: AlgoFunction = ({ cells, stack }) => {
   let nextCells = cells
-  let nextStack = [...stack] as number[][]
-  const [row, col] = nextStack.shift()!
+  let nextStack = [...stack]
+  const [row, col, val] = nextStack.shift()!
   const current = [row, col]
+  nextCells[row][col] = val
   for (const [i, j] of dirs) {
     const r = row + i
     const c = col + j
@@ -15,9 +16,10 @@ export const bfs: AlgoFunction = ({ cells, stack }) => {
       return { current, nextStack, nextCells, done: true }
     }
     if (nextCells[r][c] === 1000) {
-      nextCells[r][c] = nextCells[row][col] + 1
-      nextStack.push([r, c])
+      nextCells[r][c] = 1001
+      nextStack.push([r, c, nextCells[row][col] + 1])
     }
   }
+  nextCells[row][col] = val
   return { current, nextStack, nextCells, done: false }
 }

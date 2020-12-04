@@ -53,7 +53,7 @@ export const Grid: React.FC<GridProps> = () => {
 
   const newRandom = useCallback(
     (t: number[]) => {
-      setStack([[0, 0]])
+      setStack([[0, 0, 0]])
       let randomGrid: number[][] = emptyGrid(t).map(r =>
         r.map(() => (Math.random() * 100 > probability ? 1000 : -1))
       )
@@ -76,7 +76,7 @@ export const Grid: React.FC<GridProps> = () => {
     const [tr, tc] = target
     resetCells[tr][tc] = 4000
     setCells(resetCells)
-    setStack([[0, 0]])
+    setStack([[0, 0, 0]])
     setFrame(0)
     setDone(false)
     setStart(false)
@@ -106,7 +106,7 @@ export const Grid: React.FC<GridProps> = () => {
     setCells(toggledCells)
     setStart(false)
     setDone(false)
-    setStack([[0, 0]])
+    setStack([[0, 0, 0]])
     setFrame(0)
     forceUpdate()
   }
@@ -235,7 +235,7 @@ export const Grid: React.FC<GridProps> = () => {
                 tabIndex={-1}
                 className={
                   cell >= 0
-                    ? cell === 1000
+                    ? cell >= 1000
                       ? 'cell'
                       : i === cur[0] && j === cur[1]
                       ? 'cell current'
@@ -243,7 +243,7 @@ export const Grid: React.FC<GridProps> = () => {
                     : 'cell wall'
                 }
               >
-                {cell === 1000 ? '∞' : cell >= 0 ? cell : ''}
+                {cell >= 1000 ? '∞' : cell >= 0 ? cell : ''}
               </div>
             )
           })
