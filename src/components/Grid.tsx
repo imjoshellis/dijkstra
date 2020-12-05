@@ -5,7 +5,7 @@ import React, {
   useReducer,
   useState
 } from 'react'
-import { AlgoMap, AlgoTypes, bfs, dfs } from '../algos'
+import { AlgoMap, AlgoTypes, bfs, dfs, Path } from '../algos'
 
 interface GridProps {}
 
@@ -43,6 +43,7 @@ export const Grid: React.FC<GridProps> = () => {
 
   const [cells, setCells] = useState([] as number[][])
   const [stack, setStack] = useState([] as number[][])
+  const [path, setPath] = useState<Path>({})
   const [algo, setAlgo] = useState<AlgoTypes>('bfs')
   const [frame, setFrame] = useState(0)
   const [speed, setSpeed] = useState(50)
@@ -65,6 +66,7 @@ export const Grid: React.FC<GridProps> = () => {
       setCells(randomGrid)
       setFrame(0)
       setDone(false)
+      setPath({})
       setStart(false)
     },
     [emptyGrid, probability]
@@ -79,6 +81,7 @@ export const Grid: React.FC<GridProps> = () => {
     setStack([[0, 0, 0]])
     setFrame(0)
     setDone(false)
+    setPath({})
     setStart(false)
   }
 
@@ -104,6 +107,7 @@ export const Grid: React.FC<GridProps> = () => {
       toggledCells[tr][tc] = 4000
     }
     setCells(toggledCells)
+    setPath({})
     setStart(false)
     setDone(false)
     setStack([[0, 0, 0]])
@@ -118,7 +122,7 @@ export const Grid: React.FC<GridProps> = () => {
   useEffect(() => {
     if (start && stack.length > 0 && !done) {
       const interval = setInterval(() => {
-        const { current, nextStack, nextCells, done } = algos[algo]({
+        const { current, nextStack, nextCells, done, path } = algos[algo]({
           cells,
           stack
         })
@@ -127,6 +131,9 @@ export const Grid: React.FC<GridProps> = () => {
         setCells(nextCells)
         setDone(done)
         setFrame(frame + 1)
+        if (done) {
+          setPath(path)
+        }
       }, 500 / speed)
       return () => {
         clearInterval(interval)
@@ -222,10 +229,40 @@ export const Grid: React.FC<GridProps> = () => {
         {cells.map((row, i) =>
           row.flatMap((cell, j) => {
             const key = i + '-' + j
+            if (key in path)
+              return (
+                <div key={key} className='cell path'>
+                  {cell}
+                </div>
+              )
             if (cell === 0 || cell === 4000)
               return (
                 <div key={key} className='cell gate'>
                   ↘︎
+                </div>
+              )
+            if (cell === -1)
+              return (
+                <div
+                  key={key}
+                  onMouseDown={toggle(i, j)}
+                  tabIndex={-1}
+                  className='cell wall'
+                />
+              )
+            if (cell > 0 && cell < 1000)
+              return (
+                <div
+                  key={key}
+                  onMouseDown={toggle(i, j)}
+                  tabIndex={-1}
+                  className={
+                    i === cur[0] && j === cur[1]
+                      ? 'cell current'
+                      : 'cell visited'
+                  }
+                >
+                  {cell}
                 </div>
               )
             return (
@@ -233,17 +270,9 @@ export const Grid: React.FC<GridProps> = () => {
                 key={key}
                 onMouseDown={toggle(i, j)}
                 tabIndex={-1}
-                className={
-                  cell >= 0
-                    ? cell >= 1000
-                      ? 'cell'
-                      : i === cur[0] && j === cur[1]
-                      ? 'cell current'
-                      : 'cell visited'
-                    : 'cell wall'
-                }
+                className={'cell'}
               >
-                {cell >= 1000 ? '∞' : cell >= 0 ? cell : ''}
+                {'∞'}
               </div>
             )
           })
