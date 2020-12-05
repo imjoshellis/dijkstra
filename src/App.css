@@ -1,4 +1,4 @@
-/* https: ; //lospec.com/palette-list/endesga-64 */
+/* https://lospec.com/palette-list/endesga-64 */
 :root {
   --app-bg: #131313;
   --app-text: #b4b4b4;
@@ -11,9 +11,11 @@
   --cell-visited: #424c6e;
   --cell-visited-text: #c7cfdd;
   --cell-current: #ff5000;
-  --cell-current-text: #8e251d;
+  --cell-current-text: #391f21;
   --cell-gate: #1e6f50;
   --cell-gate-text: #5ac54f;
+  --cell-path: #ed7614;
+  --cell-path-text: #391f21;
 }
 
 p {
@@ -106,11 +108,17 @@ h1 {
   color: var(--cell-current-text);
   background-color: var(--cell-current);
   transition: background-color 50ms ease-out;
+  font-weight: 800;
 }
 
 .wall {
   background-color: var(--cell-wall);
-  color: var(--mud-300);
+}
+
+.path {
+  background-color: var(--cell-path);
+  color: var(--cell-path-text);
+  font-weight: 800;
 }
 
 .gate {
