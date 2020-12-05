@@ -18,19 +18,14 @@
   --cell-path-text: #391f21;
 }
 
-p {
-  margin: 0;
-}
-
 .App {
-  text-align: center;
   background-color: var(--app-bg);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: calc(4px + 2vmin);
+  font-size: 16px;
   color: var(--app-text);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
     Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
@@ -51,7 +46,44 @@ a:hover {
 }
 
 h1 {
-  font-size: calc(10px + 2vmin);
+  font-size: 24px;
+  margin-top: 0px;
+  margin-bottom: 8px;
+}
+
+p {
+  max-width: 500px;
+  margin-top: 0;
+  margin-bottom: 8px;
+}
+
+.infoWrapper {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  max-width: 80vw;
+  margin-bottom: 24px;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  padding-right: 24px;
+}
+
+button {
+  background: var(--cell-path);
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: medium;
+  font-weight: 600;
+  color: var(--cell-path-text);
+}
+
+button:hover {
+  background: var(--cell-hover);
+  cursor: pointer;
 }
 
 .grid {

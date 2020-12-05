@@ -5,7 +5,7 @@ import React, {
   useReducer,
   useState
 } from 'react'
-import { AlgoMap, AlgoTypes, bfs, dfs, Path } from '../algos'
+import { AlgoMap, AlgoTypes, bfs, dfs, Path, dfsToBfs } from '../algos'
 
 interface GridProps {}
 
@@ -16,8 +16,30 @@ const randInt = (min: number, max: number) => {
 }
 
 const algos: AlgoMap = {
-  dfs: dfs,
-  bfs: bfs
+  bfs: {
+    name: 'bfs',
+    title: 'Breadth First Search',
+    fn: bfs,
+    next: 'dfs',
+    desc:
+      'Breadth First Search (BFS) traverses the grid one step of distance (measured from the entrance) at a time. It will therefore always find the shortest possible path.'
+  },
+  dfs: {
+    name: 'dfs',
+    title: 'Depth First Search',
+    fn: dfs,
+    next: 'dfsToBfs',
+    desc:
+      "Depth First Search (DFS) traverses as far as it can go along one exploration path. It will generally not find the shortest path because it's unaware of shortcuts."
+  },
+  dfsToBfs: {
+    name: 'dfsToBfs',
+    title: 'DFS to BFS',
+    fn: dfsToBfs,
+    next: 'bfs',
+    desc:
+      'DFS to BFS explores with DFS and runs a BFS on explored cells after finding the exit, meaning it will find the shortest explored path (not necessarily the shortest possible path).'
+  }
 }
 
 export const Grid: React.FC<GridProps> = () => {
@@ -122,7 +144,7 @@ export const Grid: React.FC<GridProps> = () => {
   useEffect(() => {
     if (start && stack.length > 0 && !done) {
       const interval = setInterval(() => {
-        const { current, nextStack, nextCells, done, path } = algos[algo]({
+        const { current, nextStack, nextCells, done, path } = algos[algo].fn({
           cells,
           stack
         })
@@ -142,77 +164,78 @@ export const Grid: React.FC<GridProps> = () => {
   }, [algo, cells, done, frame, speed, stack, start])
   return (
     <>
-      <div className='controls'>
-        <div className='control-row'>
-          <div className='control-item'>Step: {frame}</div>
-          {done ? (
-            <button
-              className='control-item'
-              onClick={() => {
-                repeat()
-                setStart(true)
-              }}
-            >
-              restart
-            </button>
-          ) : !start ? (
-            <button className='control-item' onClick={() => setStart(true)}>
-              play
-            </button>
-          ) : (
-            <button className='control-item' onClick={() => setStart(false)}>
-              pause
-            </button>
-          )}
-          {algo === 'bfs' ? (
-            <button className='control-item' onClick={() => setAlgo('dfs')}>
-              using: bfs (click to toggle)
-            </button>
-          ) : (
-            <button className='control-item' onClick={() => setAlgo('bfs')}>
-              using: dfs (click to toggle)
-            </button>
-          )}
-          <button className='control-item' onClick={() => newRandom(target)}>
-            new
-          </button>
-          <button className='control-item' onClick={repeat}>
-            reset
+      <div className='infoWrapper'>
+        <div className='info'>
+          <h1 className='algo-title'>{algos[algo].title}</h1>
+          <p>{algos[algo].desc}</p>
+          <button onClick={() => setAlgo(algos[algo].next)}>
+            next algorithm
           </button>
         </div>
-        <div className='control-row'>
-          <div className='control-item'>
-            <label>Speed</label>
-            <input
-              type='range'
-              min='1'
-              max='100'
-              name='speed'
-              value={speed}
-              onChange={e => {
-                setSpeed(parseInt(e.target.value))
-              }}
-            />
+        <div className='controls'>
+          <div className='control-row'>
+            <div className='control-item'>Step: {frame}</div>
+            {done ? (
+              <button
+                className='control-item'
+                onClick={() => {
+                  repeat()
+                  setStart(true)
+                }}
+              >
+                restart
+              </button>
+            ) : !start ? (
+              <button className='control-item' onClick={() => setStart(true)}>
+                play
+              </button>
+            ) : (
+              <button className='control-item' onClick={() => setStart(false)}>
+                pause
+              </button>
+            )}
+            <button className='control-item' onClick={() => newRandom(target)}>
+              new
+            </button>
+            <button className='control-item' onClick={repeat}>
+              reset
+            </button>
           </div>
-          <div className='control-item'>
-            <label>Chance of Wall</label>
-            <input
-              type='range'
-              min='0'
-              max='100'
-              name='probability'
-              value={probability}
-              onChange={e => {
-                setProbability(parseInt(e.target.value))
-              }}
-            />
+          <div className='control-row'>
+            <div className='control-item'>
+              <label>Speed</label>
+              <input
+                type='range'
+                min='1'
+                max='100'
+                name='speed'
+                value={speed}
+                onChange={e => {
+                  setSpeed(parseInt(e.target.value))
+                }}
+              />
+            </div>
+            <div className='control-item'>
+              <label>Chance of Wall</label>
+              <input
+                type='range'
+                min='0'
+                max='100'
+                name='probability'
+                value={probability}
+                onChange={e => {
+                  setProbability(parseInt(e.target.value))
+                }}
+              />
+            </div>
           </div>
-        </div>
-        <div className='control-row'>
-          <div className='control-item'>
+          <div className='' style={{ textAlign: 'center' }}>
             <p>
               <strong>Left-click</strong> to toggle a cell between wall and
-              empty. <strong>Right-click</strong> to move the target cell.
+              empty.
+            </p>
+            <p>
+              <strong>Right-click</strong> to move the target cell.
             </p>
           </div>
         </div>
@@ -221,9 +244,9 @@ export const Grid: React.FC<GridProps> = () => {
         className='grid'
         onContextMenu={preventDefault}
         style={{
-          gridTemplateColumns: `repeat(${cols}, ${80 /
+          gridTemplateColumns: `repeat(${cols}, ${70 /
             Math.max(cols, rows)}vw)`,
-          gridTemplateRows: `repeat(${rows}, ${80 / Math.max(cols, rows)}vw)`
+          gridTemplateRows: `repeat(${rows}, ${70 / Math.max(cols, rows)}vw)`
         }}
       >
         {cells.map((row, i) =>
@@ -231,7 +254,12 @@ export const Grid: React.FC<GridProps> = () => {
             const key = i + '-' + j
             if (key in path)
               return (
-                <div key={key} className='cell path'>
+                <div
+                  key={key}
+                  onMouseDown={toggle(i, j)}
+                  tabIndex={-1}
+                  className='cell path'
+                >
                   {cell}
                 </div>
               )

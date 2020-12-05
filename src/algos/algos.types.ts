@@ -15,12 +15,18 @@ type AlgoResults = {
   path: Path
 }
 
-export type AlgoTypes = 'dfs' | 'bfs'
+export type AlgoTypes = 'dfs' | 'bfs' | 'dfsToBfs'
 
 export type AlgoFunction = (props: AlgoProps) => AlgoResults
 
 export type AlgoMap = {
-  [key in AlgoTypes]: AlgoFunction
+  [K in AlgoTypes]: {
+    name: K
+    fn: AlgoFunction
+    next: AlgoTypes
+    title: string
+    desc: string
+  }
 }
 
 type ShortestPathProps = {
