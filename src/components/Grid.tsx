@@ -6,6 +6,7 @@ import React, {
   useState
 } from 'react'
 import { AlgoMap, AlgoTypes, bfs, dfs, Path, dfsToBfs } from '../algos'
+import Cell from './Cell'
 
 interface GridProps {}
 
@@ -73,6 +74,8 @@ export const Grid: React.FC<GridProps> = () => {
   const [start, setStart] = useState(false)
   const [, forceUpdate] = useReducer(x => x + 1, 0)
   const [cur, setCur] = useState([0, 0])
+  const [drag, setDrag] = useState(false)
+  const [drawType, setDrawType] = useState('empty cells')
 
   const newRandom = useCallback(
     (t: number[]) => {
@@ -111,24 +114,31 @@ export const Grid: React.FC<GridProps> = () => {
     e.preventDefault()
   }
 
+  const toggleDrawType = () => {
+    if (drawType === 'empty cells') setDrawType('walls')
+    else setDrawType('empty cells')
+  }
+
   const toggle = (i: number, j: number) => (
     e: React.MouseEvent<HTMLDivElement, MouseEvent>
   ) => {
     preventDefault(e)
     let toggledCells = cells.map(row => row.map(c => (c > 0 ? 1000 : c)))
     const [tr, tc] = target
-    console.log(e.button, e.buttons)
+
     if (e.buttons === 2) {
       toggledCells[i][j] = 4000
       toggledCells[0][0] = 0
       toggledCells[tr][tc] = 1000
       setTarget([i, j])
-    } else if (e.buttons === 1) {
-      toggledCells[i][j] = toggledCells[i][j] >= 0 ? -1 : 1000
+      setCells(toggledCells)
+    } else if (drag) {
+      toggledCells[i][j] = drawType === 'walls' ? -1 : 1000
       toggledCells[0][0] = 0
       toggledCells[tr][tc] = 4000
+      setCells(toggledCells)
     }
-    setCells(toggledCells)
+
     setPath({})
     setStart(false)
     setDone(false)
@@ -230,10 +240,14 @@ export const Grid: React.FC<GridProps> = () => {
             </div>
           </div>
           <div className='' style={{ textAlign: 'center' }}>
-            <p>
-              <strong>Left-click</strong> to toggle a cell between wall and
-              empty.
-            </p>
+            <div style={{ display: 'flex', justifyContent: 'center' }}>
+              <p>
+                <strong>Left-click</strong> and <strong>drag</strong> to draw
+              </p>
+              <button className='control-item' onClick={toggleDrawType}>
+                {drawType} (toggle)
+              </button>
+            </div>
             <p>
               <strong>Right-click</strong> to move the target cell.
             </p>
@@ -243,6 +257,9 @@ export const Grid: React.FC<GridProps> = () => {
       <div
         className='grid'
         onContextMenu={preventDefault}
+        onMouseDown={() => setDrag(true)}
+        onMouseUp={() => setDrag(false)}
+        onMouseLeave={() => setDrag(false)}
         style={{
           gridTemplateColumns: `repeat(${cols}, ${70 /
             Math.max(cols, rows)}vw)`,
@@ -254,54 +271,40 @@ export const Grid: React.FC<GridProps> = () => {
             const key = i + '-' + j
             if (key in path)
               return (
-                <div
+                <Cell
                   key={key}
-                  onMouseDown={toggle(i, j)}
-                  tabIndex={-1}
-                  className='cell path'
-                >
-                  {cell}
-                </div>
+                  handleInteraction={toggle(i, j)}
+                  kind='path'
+                  label={cell.toString()}
+                />
               )
             if (cell === 0 || cell === 4000)
-              return (
-                <div key={key} className='cell gate'>
-                  ↘︎
-                </div>
-              )
+              return <Cell key={key} kind='gate' label='↘︎' />
             if (cell === -1)
               return (
-                <div
+                <Cell
                   key={key}
-                  onMouseDown={toggle(i, j)}
-                  tabIndex={-1}
-                  className='cell wall'
+                  handleInteraction={toggle(i, j)}
+                  kind='wall'
+                  label=''
                 />
               )
             if (cell > 0 && cell < 1000)
               return (
-                <div
+                <Cell
                   key={key}
-                  onMouseDown={toggle(i, j)}
-                  tabIndex={-1}
-                  className={
-                    i === cur[0] && j === cur[1]
-                      ? 'cell current'
-                      : 'cell visited'
-                  }
-                >
-                  {cell}
-                </div>
+                  handleInteraction={toggle(i, j)}
+                  kind={i === cur[0] && j === cur[1] ? 'current' : 'visited'}
+                  label={cell.toString()}
+                />
               )
             return (
-              <div
+              <Cell
                 key={key}
-                onMouseDown={toggle(i, j)}
-                tabIndex={-1}
-                className={'cell'}
-              >
-                {'∞'}
-              </div>
+                handleInteraction={toggle(i, j)}
+                kind=''
+                label='∞'
+              />
             )
           })
         )}
