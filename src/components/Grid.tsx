@@ -132,19 +132,24 @@ export const Grid: React.FC<GridProps> = () => {
       toggledCells[tr][tc] = 1000
       setTarget([i, j])
       setCells(toggledCells)
-    } else if (drag) {
+      setPath({})
+      setStart(false)
+      setDone(false)
+      setStack([[0, 0, 0]])
+      setFrame(0)
+      forceUpdate()
+    } else if (drag || e.buttons === 1) {
       toggledCells[i][j] = drawType === 'walls' ? -1 : 1000
       toggledCells[0][0] = 0
       toggledCells[tr][tc] = 4000
       setCells(toggledCells)
+      setPath({})
+      setStart(false)
+      setStack([[0, 0, 0]])
+      setDone(false)
+      setFrame(0)
+      forceUpdate()
     }
-
-    setPath({})
-    setStart(false)
-    setDone(false)
-    setStack([[0, 0, 0]])
-    setFrame(0)
-    forceUpdate()
   }
 
   useEffect(() => {
