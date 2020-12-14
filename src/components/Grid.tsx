@@ -75,7 +75,6 @@ export const Grid: React.FC<GridProps> = () => {
   const [, forceUpdate] = useReducer(x => x + 1, 0)
   const [cur, setCur] = useState([0, 0])
   const [drag, setDrag] = useState(false)
-  const [drawType, setDrawType] = useState('empty cells')
 
   const newRandom = useCallback(
     (t: number[]) => {
@@ -114,11 +113,6 @@ export const Grid: React.FC<GridProps> = () => {
     e.preventDefault()
   }
 
-  const toggleDrawType = () => {
-    if (drawType === 'empty cells') setDrawType('walls')
-    else setDrawType('empty cells')
-  }
-
   const toggle = (i: number, j: number) => (
     e: React.MouseEvent<HTMLDivElement, MouseEvent>
   ) => {
@@ -138,8 +132,19 @@ export const Grid: React.FC<GridProps> = () => {
       setStack([[0, 0, 0]])
       setFrame(0)
       forceUpdate()
-    } else if (drag || e.buttons === 1) {
-      toggledCells[i][j] = drawType === 'walls' ? -1 : 1000
+    } else if (drag) {
+      toggledCells[i][j] = -1
+      toggledCells[0][0] = 0
+      toggledCells[tr][tc] = 4000
+      setCells(toggledCells)
+      setPath({})
+      setStart(false)
+      setStack([[0, 0, 0]])
+      setDone(false)
+      setFrame(0)
+      forceUpdate()
+    } else if (e.buttons === 1) {
+      toggledCells[i][j] = 1000
       toggledCells[0][0] = 0
       toggledCells[tr][tc] = 4000
       setCells(toggledCells)
@@ -247,11 +252,9 @@ export const Grid: React.FC<GridProps> = () => {
           <div className='' style={{ textAlign: 'center' }}>
             <div style={{ display: 'flex', justifyContent: 'center' }}>
               <p>
-                <strong>Left-click</strong> and <strong>drag</strong> to draw
+                <strong>Left-click</strong> to remove walls.{' '}
+                <strong>Drag w/ Left-click</strong> to draw walls.
               </p>
-              <button className='control-item' onClick={toggleDrawType}>
-                {drawType} (toggle)
-              </button>
             </div>
             <p>
               <strong>Right-click</strong> to move the target cell.
